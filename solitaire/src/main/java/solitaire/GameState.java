@@ -37,7 +37,12 @@ public class GameState {
 
     // Creates a full deck of cards with all combinations of suits and ranks
     private void initializeDeck() {
-      //USE IMPLEMENTATION FROM PART 2
+        for (Suit s : Suit.values()) {
+            for (Rank r : Rank.values()) {
+                Card card = new Card(s,r);
+                    deck.push(card);
+            }
+        }
     }
 
     // Shuffles the deck
@@ -47,27 +52,64 @@ public class GameState {
 
     // Deals cards to the 7 game piles
     private void dealInitialCards() {
-        //USE IMPLEMENTATION FROM PART 2
+        for(int j = 6; j > -1; j--) {
+            for(int i = j + 1; i > 0; i--) {
+                if(i == 1) {
+                    (gamePiles[j].push(deck.pop())).flip();
+                }
+                else {gamePiles[j].push(deck.pop());
+                }
+            }        
+        }
     }
 
     // Draws up to three cards from the deck into visibleCards
     public void drawFromDeck() {
-        //USE IMPLEMENTATION FROM PART 2
+        for(int i = 0; i < 3; i++) {
+            (visibleCards.push(deck.pop())).flip();
+        }
 
     }
 
     public void discardCards() {
-        //takes whatever cards are remaining in the visibleCards pile and moves them to the discardPiles
+        for(int m = 0; m <= visibleCards.size() + 1; m++) {
+            discardedCards.push(visibleCards.pop());
+        }
     }
 
     // new methods from part 3
 
+    
     public boolean canCardMove(Card card, int toPile){
         /*a card can be moved from the visible cards to a pile if 
             A) The card is the opposite color and its rank is ONE smaller than the card it will be placed on
             B) The pile is empty and the card is a King
         */
-        return false;
+        //List<Rank> ranks = Arrays.asList(Rank.values());
+        //System.out.println(card.getRank());
+        if(gamePiles[toPile].size() == 0) {
+            if(card.getRank() == Rank.KING) {
+                return true;
+            }
+        }
+
+else if((gamePiles[toPile].peek()).getRank().ordinal() - 1  == card.getRank().ordinal()) {
+
+        if((gamePiles[toPile].peek()).getSuit() == Suit.HEARTS ||  gamePiles[toPile].peek().getSuit() == Suit.DIAMONDS) {
+            if(card.getSuit() == Suit.SPADES || card.getSuit() == Suit.CLUBS) {
+                return true;
+            }
+        }
+
+        else if(gamePiles[toPile].peek().getSuit() == Suit.SPADES || gamePiles[toPile].peek().getSuit() == Suit.CLUBS) {
+            if(card.getSuit() == Suit.HEARTS || card.getSuit() == Suit.DIAMONDS) {
+                return true;
+            }
+        }
+}
+
+        
+         return false;
     }
     // attempts to move top card from visible card stack to the toPileIndex
     // returns true if successful and false if unsuccessful
@@ -77,6 +119,10 @@ public class GameState {
             hints: use peek() and ordinal() to determine whether or not a card can be moved. 
             USE the method you just made, canCardMove
         */
+        if(canCardMove(visibleCards.peek(),toPileIndex)) {
+            gamePiles[toPileIndex].push(visibleCards.pop());
+            return true;
+        }
         return false;
     }
 
@@ -92,6 +138,24 @@ public class GameState {
         // Check if bottomCard can be moved to the toPile
         // if we can move the cards, add cardsToMove to the toPile and remove them from the fromPile
         // Then, flip the next card in the fromPile stack
+        
+        if(canCardMove(bottomCard, toPileIndex)) {
+            for(int i = 0; i < cardsToMove.size(); i++) {
+            gamePiles[toPileIndex].push(cardsToMove.get(i));
+            gamePiles[fromPileIndex].pop();
+            if(!(gamePiles[toPileIndex].peek().isFaceUp())) {
+                gamePiles[toPileIndex].peek().flip();
+            }
+            //gamePiles[fromPileIndex].peek() != null
+            //if(cardsToMove.size() < 2) {
+                System.out.println(gamePiles[fromPileIndex].size());
+                if(gamePiles[fromPileIndex].size() > 0 && (!(gamePiles[fromPileIndex].peek().isFaceUp()))) {
+                    gamePiles[fromPileIndex].peek().flip();
+                }
+            //}
+        }
+        return true;
+    }
 
         //return true if successful, false if unsuccessful
 
@@ -103,6 +167,18 @@ public class GameState {
         //current top card of the foundation pile. It needs to be the same suit. 
         //If the foundation pile is empty, the new card must be an ace
 
+        if(foundationPiles[foundationIndex].capacity() == 0) {
+            if(card.getRank() == Rank.ACE) {
+                return true;
+            }
+        }
+
+        if(foundationPiles[foundationIndex].peek().getSuit() == card.getSuit()) {
+            if(foundationPiles[foundationIndex].peek().getRank().ordinal() + 1 == card.getRank().ordinal()) {
+                return true;
+            }
+        }
+
         //This method should return true if a card can be moved to the foundation, and false otherwise. 
         
         //hint: another good time to use peek() and ordinal()
@@ -112,6 +188,13 @@ public class GameState {
         //check if we can move the top card of the fromPile to the foundation at foundationIndex
         
         //remember to flip the new top card if it is face down
+        if(canMoveToFoundation(gamePiles[fromPileIndex].peek(), foundationIndex)) {
+            foundationPiles[foundationIndex].push(gamePiles[fromPileIndex].pop());
+            if(!(gamePiles[fromPileIndex].peek().isFaceUp())) {
+                gamePiles[fromPileIndex].peek().flip();
+            }
+            return true;
+        }
 
         //return true if successful, false otherwise
         return false;
@@ -120,7 +203,10 @@ public class GameState {
     public boolean moveToFoundationFromVisibleCards(int foundationIndex) {
         //similar to the above method, 
         //move the top card from the visible cards to the foundation pile with index foundationIndex if possible
-    
+        if(canMoveToFoundation(visibleCards.peek(), foundationIndex)) {
+            foundationPiles[foundationIndex].push(visibleCards.pop());
+            return true;
+        }
         //return true if successful, false otherwise. 
         return false;
     }
