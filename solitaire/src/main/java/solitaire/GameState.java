@@ -146,9 +146,6 @@ else if((gamePiles[toPile].peek()).getRank().ordinal() - 1  == card.getRank().or
             if(!(gamePiles[toPileIndex].peek().isFaceUp())) {
                 gamePiles[toPileIndex].peek().flip();
             }
-            //gamePiles[fromPileIndex].peek() != null
-            //if(cardsToMove.size() < 2) {
-                System.out.println(gamePiles[fromPileIndex].size());
                 if(gamePiles[fromPileIndex].size() > 0 && (!(gamePiles[fromPileIndex].peek().isFaceUp()))) {
                     gamePiles[fromPileIndex].peek().flip();
                 }
@@ -167,7 +164,7 @@ else if((gamePiles[toPile].peek()).getRank().ordinal() - 1  == card.getRank().or
         //current top card of the foundation pile. It needs to be the same suit. 
         //If the foundation pile is empty, the new card must be an ace
 
-        if(foundationPiles[foundationIndex].capacity() == 0) {
+        if(foundationPiles[foundationIndex].size() == 0) {
             if(card.getRank() == Rank.ACE) {
                 return true;
             }
@@ -190,9 +187,11 @@ else if((gamePiles[toPile].peek()).getRank().ordinal() - 1  == card.getRank().or
         //remember to flip the new top card if it is face down
         if(canMoveToFoundation(gamePiles[fromPileIndex].peek(), foundationIndex)) {
             foundationPiles[foundationIndex].push(gamePiles[fromPileIndex].pop());
+            if(gamePiles[fromPileIndex].size() != 0) {
             if(!(gamePiles[fromPileIndex].peek().isFaceUp())) {
                 gamePiles[fromPileIndex].peek().flip();
             }
+        }
             return true;
         }
 
